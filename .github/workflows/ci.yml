@@ -8,9 +8,6 @@ on:
         description: "If you want to destroy AWS DB and Heroku app type 'true'"
         required: false
         default: "false"
-  push:
-    branches:
-      - main
 
 jobs:
   setup-rds:
