@@ -28,7 +28,7 @@ resource "aws_db_instance" "postgres" {
 }
 
 output "db_url" {
-  value = "jdbc:postgresql://${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/${aws_db_instance.postgres.name}"
+  value = "jdbc:postgresql://${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/mydatabase"
 }
 
 output "db_username" {
