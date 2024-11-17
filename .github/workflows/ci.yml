@@ -93,17 +93,13 @@ jobs:
         with:
           terraform_version: 1.4.0
 
-      - name: Initialize Terraform
-        working-directory: ./terraform
-        run: terraform init  # Ensure Terraform is initialized before destroying
-
       - name: Destroy RDS
         working-directory: ./terraform
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          terraform plan  # See if Terraform detects changes
+          terraform init  # Ensure initialization before destroy
           terraform destroy -auto-approve \
             -var="db_username=${{ secrets.DB_USERNAME }}" \
             -var="db_password=${{ secrets.DB_PASSWORD }}"
@@ -112,7 +108,4 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
-        run: |
-          echo "Deleting Heroku App: $HEROKU_APP_NAME"
-          heroku apps:destroy --app $HEROKU_APP_NAME --confirm $HEROKU_APP_NAME
-  
+        run: heroku apps:destroy --app $HEROKU_APP_NAME --confirm $HEROKU_APP_NAME
