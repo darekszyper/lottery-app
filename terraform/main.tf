@@ -1,6 +1,6 @@
-# terraform/main.tf
 provider "aws" {
   region = "eu-central-1"
+  version = "~> 4.0"  # Specify AWS provider version
 }
 
 variable "db_username" {
