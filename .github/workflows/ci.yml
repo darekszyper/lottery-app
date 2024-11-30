@@ -22,12 +22,12 @@ jobs:
         with:
           terraform_version: 1.4.0
 
-      - name: Initialize Terraform
+      - name: Initialize Terraform Backend
         working-directory: ./terraform
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: terraform init
+        run: terraform init -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Apply Terraform
         working-directory: ./terraform
@@ -63,6 +63,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 17
+          distribution: temurin
 
       - name: Deploy to Heroku
         env:
@@ -93,19 +94,20 @@ jobs:
         with:
           terraform_version: 1.4.0
 
-      - name: Destroy RDS
+      - name: Destroy Infrastructure
         working-directory: ./terraform
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          terraform init  # Ensure initialization before destroy
+          terraform init
           terraform destroy -auto-approve \
             -var="db_username=${{ secrets.DB_USERNAME }}" \
             -var="db_password=${{ secrets.DB_PASSWORD }}"
 
-      - name: Delete Heroku App
+      - name: Delete S3 Bucket
         env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
-        run: heroku apps:destroy --app $HEROKU_APP_NAME --confirm $HEROKU_APP_NAME
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 rb s3://my-unique-terraform-state-bucket --force
