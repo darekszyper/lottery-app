@@ -26,12 +26,13 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: terraform init \
-          -backend-config="bucket=${{ secrets.S3_TF_STATE }}" \
-          -backend-config="key=terraform/state" \
-          -backend-config="region=eu-central-1" \
-          -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-          -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+        run: |
+          terraform init -chdir=./terraform \
+            -backend-config="bucket=${{ secrets.S3_TF_STATE }}" \
+            -backend-config="key=terraform/state" \
+            -backend-config="region=eu-central-1" \
+            -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Apply Terraform
         working-directory: ./terraform
@@ -39,7 +40,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          terraform apply -auto-approve \
+          terraform apply -chdir=./terraform -auto-approve \
             -var="db_username=${{ secrets.DB_USERNAME }}" \
             -var="db_password=${{ secrets.DB_PASSWORD }}"
 
@@ -104,13 +105,13 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          terraform init \
+          terraform init -chdir=./terraform \
             -backend-config="bucket=${{ secrets.S3_TF_STATE }}" \
             -backend-config="key=terraform/state" \
             -backend-config="region=eu-central-1" \
             -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          terraform destroy -auto-approve \
+          terraform destroy -chdir=./terraform -auto-approve \
             -var="db_username=${{ secrets.DB_USERNAME }}" \
             -var="db_password=${{ secrets.DB_PASSWORD }}"
 
