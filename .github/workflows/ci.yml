@@ -86,17 +86,17 @@ jobs:
           heroku_app_name: ${{secrets.HEROKU_APP_NAME}} # Must be unique in Heroku
           heroku_email: ${{secrets.MY_EMAIL}}
         env:
-          DATA_SOURCE_URL: ${{ steps.terraform_output.outputs.DB_URL }}
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
-          DATA_SOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
-          DATA_SOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          RANDOM_API_KEY: ${{ secrets.RANDOM_API_KEY }}
-          USER1_PASSWORD: ${{ secrets.USER1_PASSWORD }}
-          USER2_PASSWORD: ${{ secrets.USER2_PASSWORD }}
+          HD_DATA_SOURCE_URL: ${{ steps.terraform_output.outputs.DB_URL }}
+          HD_HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HD_HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+          HD_DATA_SOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
+          HD_DATA_SOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          HD_MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          HD_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          HD_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          HD_RANDOM_API_KEY: ${{ secrets.RANDOM_API_KEY }}
+          HD_USER1_PASSWORD: ${{ secrets.USER1_PASSWORD }}
+          HD_USER2_PASSWORD: ${{ secrets.USER2_PASSWORD }}
 
   destroy:
     if: ${{ github.event.inputs.destroy == 'true' }}
