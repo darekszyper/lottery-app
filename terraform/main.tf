@@ -11,16 +11,9 @@ variable "db_password" {
   type = string
 }
 
-# S3 bucket for storing Terraform state
-resource "aws_s3_bucket" "terraform_state" {
-  bucket        = "my-unique-terraform-state-bucket"
-  acl           = "private"
-  force_destroy = true  # Optional, remove if you want to manually delete objects before destroying
-}
-
 terraform {
   backend "s3" {
-    bucket = "my-unique-terraform-state-bucket"
+    bucket = "terraform-state-bucket"
     key    = "terraform/state"
     region = "eu-central-1"
   }
