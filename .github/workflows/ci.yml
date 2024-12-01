@@ -42,7 +42,15 @@ jobs:
       - name: Set Database Environment Variables
         id: db_vars
         working-directory: ./terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
+          # Initialize with backend configuration
+          terraform init \
+            -backend-config="bucket=terraform-state-bucket-154335" \
+            -backend-config="region=eu-central-1"
+
           # List all available outputs first
           terraform output
 
