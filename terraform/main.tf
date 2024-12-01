@@ -13,33 +13,20 @@ variable "db_password" {
 
 # S3 bucket for storing Terraform state
 resource "aws_s3_bucket" "terraform_state" {
-  bucket        = "my-unique-terraform-state-bucket-${random_id.suffix.hex}"
+  bucket        = "my-unique-terraform-state-bucket"
   acl           = "private"
-  force_destroy = true
-}
-
-resource "aws_s3_bucket_versioning" "versioning" {
-  bucket = aws_s3_bucket.terraform_state.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-# Random suffix to ensure bucket name uniqueness
-resource "random_id" "suffix" {
-  byte_length = 4
+  force_destroy = true  # Optional, remove if you want to manually delete objects before destroying
 }
 
 terraform {
   backend "s3" {
-    bucket = aws_s3_bucket.terraform_state.bucket
+    bucket = "my-unique-terraform-state-bucket"
     key    = "terraform/state"
     region = "eu-central-1"
   }
 }
 
-# PostgreSQL RDS Instance
+# PostgreSQL RDS Instance (simple and cheapest)
 resource "aws_db_instance" "postgres" {
   allocated_storage    = 20
   engine               = "postgres"
@@ -48,11 +35,9 @@ resource "aws_db_instance" "postgres" {
   username             = var.db_username
   password             = var.db_password
   skip_final_snapshot  = true
-  publicly_accessible  = true
-
-  # Configure the cheapest instance
+  publicly_accessible  = true  # Consider changing to false for private access
   max_allocated_storage = 50
-  backup_retention_period = 0
+  backup_retention_period = 0  # No backups to save costs
 }
 
 # Output database connection details

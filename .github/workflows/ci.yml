@@ -111,3 +111,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 rb s3://my-unique-terraform-state-bucket --force
+
+      - name: Delete Heroku App
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+        run: heroku apps:destroy --app $HEROKU_APP_NAME --confirm $HEROKU_APP_NAME
