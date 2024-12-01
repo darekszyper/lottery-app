@@ -1,4 +1,3 @@
-# ./terraform/main.tf
 terraform {
   backend "s3" {
     bucket  = "terraform-state-bucket-154335"
@@ -44,14 +43,13 @@ resource "aws_db_instance" "postgres" {
 
 # Output database connection details
 output "db_url" {
-  value = "jdbc:postgresql://${aws_db_instance.postgres.address}:${aws_db_instance.postgres.port}/mydatabase"
+  value = format("jdbc:postgresql://%s:%s/mydatabase",
+    aws_db_instance.postgres.address,
+    aws_db_instance.postgres.port
+  )
 }
 
+# Non-sensitive username output
 output "db_username" {
-  value = aws_db_instance.postgres.username
-}
-
-output "db_password" {
-  value     = aws_db_instance.postgres.password
-  sensitive = true
+  value = var.db_username
 }

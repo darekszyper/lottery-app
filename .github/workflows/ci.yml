@@ -43,13 +43,34 @@ jobs:
         id: db_vars
         working-directory: ./terraform
         run: |
-          DB_URL=$(terraform output -raw db_url)
-          DB_USERNAME="${{ secrets.DB_USERNAME }}"
-          DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+          # List all available outputs first
+          terraform output
 
+          # Try to get the output with error handling
+          DB_URL=$(terraform output -raw db_url || echo "")
+
+          # Check if DB_URL is empty
+          if [ -z "$DB_URL" ]; then
+            echo "Error: Could not retrieve database URL"
+            exit 1
+          fi
+
+          echo "Database URL: $DB_URL"
           echo "DB_URL=${DB_URL}" >> $GITHUB_ENV
-          echo "DB_USERNAME=${DB_USERNAME}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${DB_PASSWORD}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+
+#      - name: Set Database Environment Variables
+#        id: db_vars
+#        working-directory: ./terraform
+#        run: |
+#          DB_URL=$(terraform output -raw db_url)
+#          DB_USERNAME="${{ secrets.DB_USERNAME }}"
+#          DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+#
+#          echo "DB_URL=${DB_URL}" >> $GITHUB_ENV
+#          echo "DB_USERNAME=${DB_USERNAME}" >> $GITHUB_ENV
+#          echo "DB_PASSWORD=${DB_PASSWORD}" >> $GITHUB_ENV
 
   deploy-heroku:
     if: ${{ github.event.inputs.destroy != 'true' }}
