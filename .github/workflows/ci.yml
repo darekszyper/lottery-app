@@ -14,9 +14,6 @@ jobs:
     if: ${{ github.event.inputs.destroy != 'true' }}
     runs-on: ubuntu-latest
     steps:
-#    todo  debug, delete
-      - name: Print Secret (Insecure)
-        run: echo "MY_SECRET is ${{ secrets.MY_SECRET }}"
 
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -43,37 +40,37 @@ jobs:
             -var="db_username=${{ secrets.DB_USERNAME }}" \
             -var="db_password=${{ secrets.DB_PASSWORD }}"
 
-      - name: Set Database Environment Variables
-        id: db_vars
-        working-directory: ./terraform
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          # Initialize with backend configuration
-          terraform init \
-            -backend-config="bucket=terraform-state-bucket-154335" \
-            -backend-config="region=eu-central-1"
-
-          # List all available outputs first
-          terraform output
-
-          # Try to get the output with error handling
-          DB_URL=$(terraform output -raw db_url || echo "")
-
-          # Check if DB_URL is empty
-          if [ -z "$DB_URL" ]; then
-            echo "Error: Could not retrieve database URL"
-            exit 1
-          fi
-
-          # Use printf to ensure clean output
-          printf "Database URL: %s\n" "$DB_URL"
-
-          # Explicitly escape the URL when writing to environment
-          printf "DB_URL=%q\n" "$DB_URL" >> $GITHUB_ENV
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+#      - name: Set Database Environment Variables
+#        id: db_vars
+#        working-directory: ./terraform
+#        env:
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#        run: |
+#          # Initialize with backend configuration
+#          terraform init \
+#            -backend-config="bucket=terraform-state-bucket-154335" \
+#            -backend-config="region=eu-central-1"
+#
+#          # List all available outputs first
+#          terraform output
+#
+#          # Try to get the output with error handling
+#          DB_URL=$(terraform output -raw db_url || echo "")
+#
+#          # Check if DB_URL is empty
+#          if [ -z "$DB_URL" ]; then
+#            echo "Error: Could not retrieve database URL"
+#            exit 1
+#          fi
+#
+#          # Use printf to ensure clean output
+#          printf "Database URL: %s\n" "$DB_URL"
+#
+#          # Explicitly escape the URL when writing to environment
+#          printf "DB_URL=%q\n" "$DB_URL" >> $GITHUB_ENV
+#          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
+#          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
 
   deploy-heroku:
     if: ${{ github.event.inputs.destroy != 'true' }}
@@ -84,9 +81,9 @@ jobs:
       # Debug step to print environment variables
       - name: Print Environment Variables (Debug)
         run: |
+          DB_URL=$(terraform output -raw db_url)
           echo HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           echo HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
-          echo DATA_SOURCE_URL: ${{ env.DB_URL }}
           echo DATA_SOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
           echo DATA_SOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
           echo MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
@@ -101,9 +98,9 @@ jobs:
           heroku_app_name: ${{secrets.HEROKU_APP_NAME}} #Must be unique in Heroku
           heroku_email: ${{secrets.MY_EMAIL}}
         env:
+          DATA_SOURCE_URL: $(terraform output -raw db_url)
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
-          DATA_SOURCE_URL: ${{ env.DB_URL }}
           DATA_SOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
           DATA_SOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
