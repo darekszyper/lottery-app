@@ -77,6 +77,20 @@ jobs:
     needs: setup-rds
     steps:
       - uses: actions/checkout@v2
+      # Debug step to print environment variables
+      - name: Print Environment Variables (Debug)
+        run: |
+          echo HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          echo HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+          echo DATA_SOURCE_URL: ${{ env.DB_URL }}
+          echo DATA_SOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
+          echo DATA_SOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          echo MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          echo MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          echo ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          echo RANDOM_API_KEY: ${{ secrets.RANDOM_API_KEY }}
+          echo USER1_PASSWORD: ${{ secrets.USER1_PASSWORD }}
+          echo USER2_PASSWORD: ${{ secrets.USER2_PASSWORD }}
       - uses: akhileshns/heroku-deploy@v3.13.15 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
@@ -86,44 +100,14 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
           DATA_SOURCE_URL: ${{ env.DB_URL }}
-          DATA_SOURCE_USERNAME: ${{ env.DB_USERNAME }}
-          DATA_SOURCE_PASSWORD: ${{ env.DB_PASSWORD }}
+          DATA_SOURCE_USERNAME: ${{ secrets.DB_USERNAME }}
+          DATA_SOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           RANDOM_API_KEY: ${{ secrets.RANDOM_API_KEY }}
           USER1_PASSWORD: ${{ secrets.USER1_PASSWORD }}
           USER2_PASSWORD: ${{ secrets.USER2_PASSWORD }}
-
-
-#    runs-on: ubuntu-latest
-#    needs: setup-rds
-#    steps:
-#      - name: Checkout repo
-#        uses: actions/checkout@v2
-#
-#      - name: Set up Java
-#        uses: actions/setup-java@v3
-#        with:
-#          java-version: 17
-#          distribution: temurin
-#
-#      - name: Deploy to Heroku
-#        env:
-#          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-#          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
-#          DATA_SOURCE_URL: ${{ env.DB_URL }}
-#          DATA_SOURCE_USERNAME: ${{ env.DB_USERNAME }}
-#          DATA_SOURCE_PASSWORD: ${{ env.DB_PASSWORD }}
-#          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-#          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-#          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-#          RANDOM_API_KEY: ${{ secrets.RANDOM_API_KEY }}
-#          USER1_PASSWORD: ${{ secrets.USER1_PASSWORD }}
-#          USER2_PASSWORD: ${{ secrets.USER2_PASSWORD }}
-#        run: |
-#          .\mvnw.cmd clean install -DskipTests
-#          heroku deploy:jar target/*.jar --app $HEROKU_APP_NAME
 
   destroy:
     if: ${{ github.event.inputs.destroy == 'true' }}
