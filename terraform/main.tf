@@ -1,6 +1,22 @@
+# ./terraform/main.tf
+terraform {
+  backend "s3" {
+    bucket  = "terraform-state-bucket-154335"
+    key     = "terraform.tfstate"
+    region  = "eu-central-1"
+    encrypt = true
+  }
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
 provider "aws" {
-  region  = "eu-central-1"
-  version = "~> 4.0"  # Specify AWS provider version
+  region = "eu-central-1"
 }
 
 variable "db_username" {
