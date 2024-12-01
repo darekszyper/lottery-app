@@ -1,6 +1,6 @@
 provider "aws" {
   region  = "eu-central-1"
-  version = "~> 4.0"
+  version = "~> 4.0"  # Specify AWS provider version
 }
 
 variable "db_username" {
@@ -11,18 +11,19 @@ variable "db_password" {
   type = string
 }
 
-# PostgreSQL RDS Instance (simple and cheapest)
 resource "aws_db_instance" "postgres" {
-  allocated_storage       = 20
-  engine                  = "postgres"
-  instance_class          = "db.t3.micro"
-  db_name                 = "mydatabase"
-  username                = var.db_username
-  password                = var.db_password
-  skip_final_snapshot     = true
-  publicly_accessible = true  # Consider changing to false for private access
+  allocated_storage   = 20
+  engine              = "postgres"
+  instance_class      = "db.t3.micro"
+  db_name             = "mydatabase"
+  username            = var.db_username
+  password            = var.db_password
+  skip_final_snapshot = true
+  publicly_accessible = true
+
+  # Configure the smallest, cheapest instance
   max_allocated_storage   = 50
-  backup_retention_period = 0  # No backups to save costs
+  backup_retention_period = 0
 }
 
 # Output database connection details

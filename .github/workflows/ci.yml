@@ -1,3 +1,4 @@
+# .github/workflows/ci.yml
 name: Deploy and Manage Infrastructure
 
 on:
@@ -21,24 +22,34 @@ jobs:
         with:
           terraform_version: 1.4.0
 
-      - name: Initialize Terraform Backend
+      - name: Initialize Terraform
         working-directory: ./terraform
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: terraform init -chdir=./terraform -backend-config="bucket=${{ secrets.S3_TF_STATE }}" -backend-config="key=terraform/state" -backend-config="region=eu-central-1"
+        run: terraform init
 
       - name: Apply Terraform
         working-directory: ./terraform
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: terraform apply -chdir=./terraform -auto-approve -var="db_username=${{ secrets.DB_USERNAME }}" -var="db_password=${{ secrets.DB_PASSWORD }}"
+        run: |
+          terraform apply -auto-approve \
+            -var="db_username=${{ secrets.DB_USERNAME }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}"
 
       - name: Set Database Environment Variables
         id: db_vars
         working-directory: ./terraform
-        run: DB_URL=$(terraform output -raw db_url) && DB_USERNAME="${{ secrets.DB_USERNAME }}" && DB_PASSWORD="${{ secrets.DB_PASSWORD }}" && echo "DB_URL=${DB_URL}" >> $GITHUB_ENV && echo "DB_USERNAME=${DB_USERNAME}" >> $GITHUB_ENV && echo "DB_PASSWORD=${DB_PASSWORD}" >> $GITHUB_ENV
+        run: |
+          DB_URL=$(terraform output -raw db_url)
+          DB_USERNAME="${{ secrets.DB_USERNAME }}"
+          DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+
+          echo "DB_URL=${DB_URL}" >> $GITHUB_ENV
+          echo "DB_USERNAME=${DB_USERNAME}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> $GITHUB_ENV
 
   deploy-heroku:
     if: ${{ github.event.inputs.destroy != 'true' }}
@@ -67,7 +78,9 @@ jobs:
           RANDOM_API_KEY: ${{ secrets.RANDOM_API_KEY }}
           USER1_PASSWORD: ${{ secrets.USER1_PASSWORD }}
           USER2_PASSWORD: ${{ secrets.USER2_PASSWORD }}
-        run: ./mvnw clean install -DskipTests && heroku deploy:jar target/*.jar --app $HEROKU_APP_NAME
+        run: |
+          ./mvnw clean install -DskipTests
+          heroku deploy:jar target/*.jar --app $HEROKU_APP_NAME
 
   destroy:
     if: ${{ github.event.inputs.destroy == 'true' }}
@@ -81,12 +94,16 @@ jobs:
         with:
           terraform_version: 1.4.0
 
-      - name: Destroy Infrastructure
+      - name: Destroy RDS
         working-directory: ./terraform
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: terraform init -chdir=./terraform -backend-config="bucket=${{ secrets.S3_TF_STATE }}" -backend-config="key=terraform/state" -backend-config="region=eu-central-1" && terraform destroy -chdir=./terraform -auto-approve -var="db_username=${{ secrets.DB_USERNAME }}" -var="db_password=${{ secrets.DB_PASSWORD }}"
+        run: |
+          terraform init  # Ensure initialization before destroy
+          terraform destroy -auto-approve \
+            -var="db_username=${{ secrets.DB_USERNAME }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}"
 
       - name: Delete Heroku App
         env:
