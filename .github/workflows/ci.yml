@@ -82,8 +82,22 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      - name: Make Maven wrapper executable
-        run: chmod +x ./mvnw
+      - name: Locate and make Maven wrapper executable
+        run: |
+          # Find the mvnw file
+          MVNW_PATH=$(find . -name "mvnw" -type f | head -n 1)
+
+          # Check if mvnw was found
+          if [ -z "$MVNW_PATH" ]; then
+            echo "Maven wrapper (mvnw) not found"
+            exit 1
+          fi
+
+          # Make the found mvnw executable
+          chmod +x "$MVNW_PATH"
+
+          # Print the path for verification
+          echo "Maven wrapper found at: $MVNW_PATH"
 
       - name: Deploy to Heroku
         env:
@@ -99,7 +113,10 @@ jobs:
           USER1_PASSWORD: ${{ secrets.USER1_PASSWORD }}
           USER2_PASSWORD: ${{ secrets.USER2_PASSWORD }}
         run: |
-          ./mvnw clean install -DskipTests
+          # Find the mvnw file again to use
+          MVNW_PATH=$(find . -name "mvnw" -type f | head -n 1)
+
+          "$MVNW_PATH" clean install -DskipTests
           heroku deploy:jar target/*.jar --app $HEROKU_APP_NAME
 #      - name: Checkout repo
 #        uses: actions/checkout@v2
