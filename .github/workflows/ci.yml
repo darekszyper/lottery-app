@@ -57,6 +57,9 @@ jobs:
       - name: Retrieve DB URL from Terraform Output (Heroku)
         working-directory: ./terraform
         id: terraform_output
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           DB_URL=$(terraform output -raw db_url)
           echo "DB_URL=$DB_URL"
