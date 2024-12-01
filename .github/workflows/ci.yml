@@ -51,20 +51,14 @@ jobs:
             -backend-config="bucket=terraform-state-bucket-154335" \
             -backend-config="region=eu-central-1"
 
-          # List all available outputs first
-          terraform output
+          # Retrieve the database URL directly and store it in a variable
+          DB_URL=$(terraform output -raw db_url)
 
-          # Try to get the output with error handling
-          DB_URL=$(terraform output -raw db_url || echo "")
+          # Echo the URL for verification
+          echo "Full Database URL: $DB_URL"
 
-          # Check if DB_URL is empty
-          if [ -z "$DB_URL" ]; then
-            echo "Error: Could not retrieve database URL"
-            exit 1
-          fi
-
-          echo "Database URL: $DB_URL"
-          echo "DB_URL=${DB_URL}" >> $GITHUB_ENV
+          # Safely set the environment variables
+          echo "DB_URL=$DB_URL" >> $GITHUB_ENV
           echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> $GITHUB_ENV
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
 
