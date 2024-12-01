@@ -11,25 +11,17 @@ variable "db_password" {
   type = string
 }
 
-terraform {
-  backend "s3" {
-    bucket = "terraform-state-bucket"
-    key    = "terraform/state"
-    region = "eu-central-1"
-  }
-}
-
 # PostgreSQL RDS Instance (simple and cheapest)
 resource "aws_db_instance" "postgres" {
-  allocated_storage    = 20
-  engine               = "postgres"
-  instance_class       = "db.t3.micro"
-  db_name              = "mydatabase"
-  username             = var.db_username
-  password             = var.db_password
-  skip_final_snapshot  = true
-  publicly_accessible  = true  # Consider changing to false for private access
-  max_allocated_storage = 50
+  allocated_storage       = 20
+  engine                  = "postgres"
+  instance_class          = "db.t3.micro"
+  db_name                 = "mydatabase"
+  username                = var.db_username
+  password                = var.db_password
+  skip_final_snapshot     = true
+  publicly_accessible = true  # Consider changing to false for private access
+  max_allocated_storage   = 50
   backup_retention_period = 0  # No backups to save costs
 }
 
