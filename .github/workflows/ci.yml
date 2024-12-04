@@ -70,6 +70,7 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: ${{secrets.HEROKU_APP_NAME}} # Must be unique in Heroku
           heroku_email: ${{secrets.MY_EMAIL}}
+          region: eu
         env:
           HD_DATA_SOURCE_URL: ${{ steps.terraform_output.outputs.DB_URL }}
           HD_HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
